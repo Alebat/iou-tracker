@@ -11,7 +11,7 @@ from time import time
 import argparse
 
 from iou_tracker import track_iou
-from util import load_mot, save_to_csv
+from .util import load_mot, save_to_csv
 
 
 def main(args):
