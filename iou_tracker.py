@@ -39,7 +39,6 @@ def track_iou(detections, sigma_l, sigma_h, sigma_iou, t_min, ttl, mom_alpha=0.9
     """
 
     tracks_active = []
-    tracks_finished = []
 
     for frame_num, detections_frame in enumerate(detections, start=1):
         # apply low threshold to detections
@@ -75,7 +74,7 @@ def track_iou(detections, sigma_l, sigma_h, sigma_iou, t_min, ttl, mom_alpha=0.9
                     if track['max_score'] >= sigma_h and len(track['bboxes']) - track['inactive'] >= t_min:
                         if track['inactive'] > 0:
                             del track['bboxes'][-track['inactive']:]
-                        tracks_finished.append(track)
+                        yield track
                 else:
                     # else use momentum
                     # move the bbox and zoom it
@@ -100,10 +99,9 @@ def track_iou(detections, sigma_l, sigma_h, sigma_iou, t_min, ttl, mom_alpha=0.9
         tracks_active = updated_tracks + new_tracks
 
     # finish all remaining active tracks
-    tracks_finished += [track for track in tracks_active
-                        if track['max_score'] >= sigma_h and len(track['bboxes']) >= t_min]
-
-    return tracks_finished
+    for track in tracks_active:
+        if track['max_score'] >= sigma_h and len(track['bboxes']) >= t_min:
+            yield track
 
 
 def predict_bbox(exp_zoom, track):
