@@ -46,9 +46,10 @@ def track_iou(detections, sigma_l, sigma_h, sigma_iou, t_min, ttl, mom_alpha=0.9
 
         updated_tracks = []
         for track in tracks_active:
-            if len(dets) > 0:
+            f_dets = list(filter(lambda det: area(det['bbox']) > min_area, dets))
+            if len(f_dets) > 0:
                 # get det with highest iou and similarity score
-                best_match = max(filter(lambda det: area(det['bbox']) > min_area, dets), key=lambda x: iou(predict_bbox(exp_zoom, track), x['bbox']))
+                best_match = max(f_dets, key=lambda x: iou(predict_bbox(exp_zoom, track), x['bbox']))
                 if iou(track['bboxes'][-1], best_match['bbox']) >= sigma_iou:
                     track['bboxes'].append(best_match['bbox'])
                     track['max_score'] = max(track['max_score'], best_match['score'])
